@@ -1,4 +1,4 @@
-# dbcli
+# seaql
 
 A unified CLI for MySQL, PostgreSQL, and SQLite databases.
 
@@ -6,13 +6,13 @@ Auto-detects the database type from connection URIs, port numbers, or file exten
 
 ```bash
 # Connect to PostgreSQL via URI
-dbcli postgres://user:pass@localhost:5432/mydb
+seaql postgres://user:pass@localhost:5432/mydb
 
 # Connect to MySQL via flags
-dbcli -u root -p root -h localhost -P 3306 mydb
+seaql -u root -p root -h localhost -P 3306 mydb
 
 # Connect to SQLite via file path
-dbcli path/to/database.db
+seaql path/to/database.db
 
 # Backslash commands work (PostgreSQL)
 > \dt
@@ -23,19 +23,19 @@ dbcli path/to/database.db
 ## Installation
 
 ```bash
-pip install dbcli
+pip install seaql
 ```
 
 Or with uv:
 
 ```bash
-uv tool install dbcli
+uv tool install seaql
 ```
 
 ## Usage
 
 ```
-dbcli [OPTIONS] [DBNAME]
+seaql [OPTIONS] [DBNAME]
 ```
 
 Database type is auto-detected from:

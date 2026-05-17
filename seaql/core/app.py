@@ -22,7 +22,7 @@ class DbCliApp:
     def __init__(self, plugin: DatabasePlugin, connection_info: dict):
         self.plugin = plugin
         self.connection_info = connection_info
-        self.logger = logging.getLogger(f'dbcli.{plugin.name}')
+        self.logger = logging.getLogger(f'seaql.{plugin.name}')
         self.query_history: list = []
         self.executor = None
         self.completer = None
@@ -31,7 +31,7 @@ class DbCliApp:
 
         handler = logging.NullHandler()
         handler.setFormatter(logging.Formatter('%(asctime)s %(name)s %(levelname)s - %(message)s'))
-        root = logging.getLogger('dbcli')
+        root = logging.getLogger('seaql')
         root.addHandler(handler)
         root.setLevel(logging.CRITICAL)
 

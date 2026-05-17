@@ -1,4 +1,4 @@
-from dbcli.main import _detect_db_type
+from seaql.main import _detect_db_type
 
 
 class TestDetectDbType:

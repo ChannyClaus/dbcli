@@ -1,11 +1,11 @@
 [project]
-name = "dbcli"
+name = "seaql"
 dynamic = ["version"]
-description = "Unified CLI for MySQL, PostgreSQL, and SQLite databases."
+description = "Unified CLI for MySQL, PostgreSQL, and SQLite databases (seaql)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "BSD-3-Clause"
-authors = [{ name = "dbcli Contributors" }]
+authors = [{ name = "seaql Contributors" }]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -52,14 +52,14 @@ dependencies = [
 test = ["pytest >= 7.0"]
 
 [project.urls]
-Homepage = "https://github.com/ChannyClaus/dbcli"
+Homepage = "https://github.com/ChannyClaus/seaql"
 
 [project.scripts]
-dbcli = "dbcli.main:main"
+seaql = "seaql.main:main"
 
 [tool.setuptools.packages.find]
-include = ["dbcli*"]
-exclude = ["dbcli.__pycache__*"]
+include = ["seaql*"]
+exclude = ["seaql.__pycache__*"]
 
 [tool.setuptools_scm]
 

@@ -12,7 +12,7 @@ def run_cli(args: list[str], input_text: str, timeout: int = 10) -> tuple[int, s
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
     proc = subprocess.Popen(
-        [sys.executable, "-m", "dbcli"] + args,
+        [sys.executable, "-m", "seaql"] + args,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

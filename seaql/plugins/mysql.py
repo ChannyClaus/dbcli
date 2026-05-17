@@ -5,7 +5,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
 from pygments.lexers.sql import MySqlLexer
 
-from dbcli.core.plugin import DatabasePlugin
+from seaql.core.plugin import DatabasePlugin
 
 
 class MySQLPlugin(DatabasePlugin):

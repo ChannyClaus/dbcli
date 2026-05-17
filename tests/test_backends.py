@@ -1,7 +1,7 @@
 import os
 import time
 
-from dbcli.plugins import get_plugin
+from seaql.plugins import get_plugin
 
 _UID = str(int(time.time() * 1000000))[-8:]
 

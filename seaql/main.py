@@ -1,11 +1,11 @@
-"""dbcli - Unified CLI for MySQL, PostgreSQL, and SQLite databases."""
+"""seaql - Unified CLI for MySQL, PostgreSQL, and SQLite databases."""
 
 import os
 import sys
 from typing import NoReturn
 
-from dbcli.plugins import get_plugin
-from dbcli.core.app import DbCliApp
+from seaql.plugins import get_plugin
+from seaql.core.app import DbCliApp
 
 _SQLITE_EXTENSIONS = {'.db', '.sqlite', '.sqlite3', '.db3'}
 
@@ -81,7 +81,7 @@ def _detect_db_type(args: list[str]) -> str | None:
 
 
 def _show_usage() -> NoReturn:
-    print("Usage: dbcli [OPTIONS] [DBNAME]")
+    print("Usage: seaql [OPTIONS] [DBNAME]")
     print()
     print("  A unified CLI for MySQL, PostgreSQL, and SQLite databases.")
     print()
