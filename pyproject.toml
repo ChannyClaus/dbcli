@@ -12,6 +12,23 @@ dependencies = [
     "pgcli >= 4.4.0",
 ]
 
+[project.optional-dependencies]
+ssh = [
+    "mycli[ssh] >= 1.72.0",
+    "pgcli[sshtunnel] >= 4.4.0",
+]
+keyring = [
+    "pgcli[keyring] >= 4.4.0",
+]
+llm = [
+    "mycli[llm] >= 1.72.0",
+]
+all = [
+    "dbcli[ssh]",
+    "dbcli[keyring]",
+    "dbcli[llm]",
+]
+
 [project.urls]
 Homepage = "https://github.com/dbcli/dbcli"
 
