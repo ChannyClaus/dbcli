@@ -1,11 +1,12 @@
 """dbcli - Unified CLI for MySQL (mycli) and PostgreSQL (pgcli)."""
 
+import shutil
+import subprocess
 import sys
 from typing import NoReturn
 
 
 def main() -> None:
-    """Detect database type and delegate to mycli or pgcli."""
     args = sys.argv[1:]
 
     force_mysql = False
@@ -28,15 +29,15 @@ def main() -> None:
         sys.exit(2)
 
     if force_mysql:
-        _run_mycli(clean_args)
+        _run_tool('mycli', 'mycli', clean_args)
     elif force_postgres:
-        _run_pgcli(clean_args)
+        _run_tool('pgcli', 'pgcli', clean_args)
 
     detected = _detect_db_type(clean_args)
     if detected == 'mysql':
-        _run_mycli(clean_args)
+        _run_tool('mycli', 'mycli', clean_args)
     elif detected == 'postgres':
-        _run_pgcli(clean_args)
+        _run_tool('pgcli', 'pgcli', clean_args)
 
     _show_usage()
 
@@ -61,22 +62,18 @@ def _detect_db_type(args: list[str]) -> str | None:
     return None
 
 
-def _run_mycli(args: list[str]) -> NoReturn:
-    sys.argv = [sys.argv[0]] + args
-    from mycli.main import main as mycli_main
-    sys.exit(mycli_main())
-
-
-def _run_pgcli(args: list[str]) -> NoReturn:
-    sys.argv = [sys.argv[0]] + args
-    from pgcli.main import cli
-    try:
-        cli(standalone_mode=False)
-    except SystemExit as e:
-        sys.exit(e.code)
-    except KeyboardInterrupt:
+def _run_tool(name: str, cmd: str, args: list[str]) -> NoReturn:
+    bin_path = shutil.which(cmd)
+    if not bin_path:
+        print(
+            f"dbcli: {name} is not installed.\n"
+            f"  Install it with:  pip install {name}\n"
+            f"  Or via brew:      brew install {name}\n"
+            f"  Or via uv:        uv tool install {name}",
+            file=sys.stderr,
+        )
         sys.exit(1)
-    sys.exit(0)
+    sys.exit(subprocess.run([bin_path, *args]).returncode)
 
 
 def _show_usage() -> NoReturn:

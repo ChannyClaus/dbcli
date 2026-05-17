@@ -7,27 +7,7 @@ requires-python = ">=3.10"
 license = "BSD-3-Clause"
 authors = [{ name = "dbcli Contributors" }]
 
-dependencies = [
-    "mycli >= 1.72.0",
-    "pgcli >= 4.4.0",
-]
-
-[project.optional-dependencies]
-ssh = [
-    "mycli[ssh] >= 1.72.0",
-    "pgcli[sshtunnel] >= 4.4.0",
-]
-keyring = [
-    "pgcli[keyring] >= 4.4.0",
-]
-llm = [
-    "mycli[llm] >= 1.72.0",
-]
-all = [
-    "dbcli[ssh]",
-    "dbcli[keyring]",
-    "dbcli[llm]",
-]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/dbcli/dbcli"
