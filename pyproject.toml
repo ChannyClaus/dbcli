@@ -31,6 +31,9 @@ dependencies = [
     "pgspecial >= 2.0.0",
 ]
 
+[project.optional-dependencies]
+test = ["pytest >= 7.0"]
+
 [project.urls]
 Homepage = "https://github.com/dbcli/dbcli"
 
@@ -42,6 +45,20 @@ include = ["dbcli*"]
 
 [tool.setuptools_scm]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "postgres: tests requiring PostgreSQL",
+    "mysql: tests requiring MySQL",
+    "sqlite: tests requiring SQLite",
+    "repl: tests requiring CLI subprocess",
+]
+
 [build-system]
 requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
