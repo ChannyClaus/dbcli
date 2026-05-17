@@ -1,8 +1,6 @@
 """dbcli - Unified CLI for MySQL, PostgreSQL, and SQLite databases."""
 
 import os
-import shutil
-import subprocess
 import sys
 from typing import NoReturn
 
@@ -14,11 +12,11 @@ def main() -> None:
 
     detected = _detect_db_type(args)
     if detected == 'mysql':
-        _run_tool('mycli', 'mycli', args)
+        _run_mycli(args)
     elif detected == 'postgres':
-        _run_tool('pgcli', 'pgcli', args)
+        _run_pgcli(args)
     elif detected == 'sqlite':
-        _run_tool('litecli', 'litecli', args)
+        _run_litecli(args)
 
     _show_usage()
 
@@ -51,18 +49,30 @@ def _detect_db_type(args: list[str]) -> str | None:
     return None
 
 
-def _run_tool(name: str, cmd: str, args: list[str]) -> NoReturn:
-    bin_path = shutil.which(cmd)
-    if not bin_path:
-        print(
-            f"dbcli: {name} is not installed.\n"
-            f"  Install it with:  pip install {name}\n"
-            f"  Or via brew:      brew install {name}\n"
-            f"  Or via uv:        uv tool install {name}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    sys.exit(subprocess.run([bin_path, *args]).returncode)
+def _run_mycli(args: list[str]) -> NoReturn:
+    sys.argv = [sys.argv[0], *args]
+    from mycli.main import main as mycli_main
+    sys.exit(mycli_main())
+
+
+def _run_pgcli(args: list[str]) -> NoReturn:
+    sys.argv = [sys.argv[0], *args]
+    from pgcli.main import cli
+    try:
+        cli(standalone_mode=False)
+    except SystemExit as e:
+        sys.exit(e.code)
+    sys.exit(0)
+
+
+def _run_litecli(args: list[str]) -> NoReturn:
+    sys.argv = [sys.argv[0], *args]
+    from litecli.main import cli
+    try:
+        cli(standalone_mode=False)
+    except SystemExit as e:
+        sys.exit(e.code)
+    sys.exit(0)
 
 
 def _show_usage() -> NoReturn:
