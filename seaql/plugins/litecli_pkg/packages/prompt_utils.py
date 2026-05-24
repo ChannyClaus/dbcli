@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import sys
 
-import click
-
-from .parseutils import is_destructive
 from typing import Any
 
+from .parseutils import is_destructive
 
-class ConfirmBoolParamType(click.ParamType):
+
+class ConfirmBoolParamType:
     name = "confirmation"
 
-    def convert(self, value: bool | str, param: click.Parameter | None, ctx: click.Context | None) -> bool:
+    def convert(self, value: bool | str, param: Any = None, ctx: Any = None) -> bool:
         if isinstance(value, bool):
             return value
         value = value.lower()
@@ -19,7 +18,7 @@ class ConfirmBoolParamType(click.ParamType):
             return True
         if value in ("no", "n"):
             return False
-        self.fail(f"{value} is not a valid boolean", param, ctx)
+        raise ValueError(f"{value} is not a valid boolean")
 
     def __repr__(self) -> str:
         return "BOOL"
@@ -37,13 +36,29 @@ def confirm_destructive_query(queries: str) -> bool | None:
 
 def confirm(*args: Any, **kwargs: Any) -> bool:
     try:
-        return click.confirm(*args, **kwargs)
-    except click.Abort:
+        default = kwargs.pop('default', False)
+        prompt_text = args[0] if args else kwargs.pop('text', 'Confirm')
+        suffix = ' [Y/n]' if default else ' [y/N]'
+        value = input(prompt_text + suffix + ' ').strip().lower()
+        if not value:
+            return bool(default)
+        return value in ('y', 'yes')
+    except (EOFError, KeyboardInterrupt):
         return False
 
 
 def prompt(*args: Any, **kwargs: Any) -> Any:
     try:
-        return click.prompt(*args, **kwargs)
-    except click.Abort:
+        type_check = kwargs.pop('type', None)
+        prompt_text = args[0] if args else kwargs.pop('text', '')
+        while True:
+            value = input(prompt_text + ' ').strip()
+            if type_check and hasattr(type_check, 'convert'):
+                try:
+                    return type_check.convert(value, None, None)
+                except ValueError as e:
+                    print(e)
+                    continue
+            return value
+    except (EOFError, KeyboardInterrupt):
         return False

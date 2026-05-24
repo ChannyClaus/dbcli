@@ -13,7 +13,7 @@ from runpy import run_module
 from time import time
 from typing import Any
 
-import click
+from typing import Any
 
 from . import export
 from .main import Verbosity, parse_special_command
@@ -41,10 +41,10 @@ llm = llm_module
 
 LLM_IMPORTED = llm_module is not None
 
-cli: click.Command | None
+cli: Any | None
 if llm_cli_module is not None:
     llm_cli = getattr(llm_cli_module, "cli", None)
-    cli = llm_cli if isinstance(llm_cli, click.Command) else None
+    cli = llm_cli if hasattr(llm_cli, 'commands') else None
 else:
     cli = None
 
@@ -53,7 +53,7 @@ LLM_CLI_IMPORTED = cli is not None
 log = logging.getLogger(__name__)
 
 LLM_TEMPLATE_NAME = "litecli-llm-template"
-LLM_CLI_COMMANDS: list[str] = list(cli.commands.keys()) if isinstance(cli, click.Group) else []
+LLM_CLI_COMMANDS: list[str] = list(cli.commands.keys()) if cli is not None else []
 if llm_module is not None:
     get_models = getattr(llm_module, "get_models", None)
     MODELS: dict[str, None] = {x.model_id: None for x in get_models()} if callable(get_models) else {}
@@ -117,9 +117,9 @@ def run_external_cmd(
         sys.argv = original_args
 
 
-def build_command_tree(cmd: click.Command) -> dict[str, Any] | None:
+def build_command_tree(cmd: Any) -> dict[str, Any] | None:
     tree: dict[str, Any] = {}
-    if isinstance(cmd, click.Group):
+    if hasattr(cmd, 'commands'):
         for name, subcmd in cmd.commands.items():
             if cmd.name == "models" and name == "default":
                 tree[name] = MODELS
@@ -276,7 +276,7 @@ def handle_llm(text: str, cur: DBCursor) -> tuple[str, str | None, float]:
     if not use_context:
         args = parts
         if capture_output:
-            click.echo("Calling llm command")
+            print("Calling llm command")
             start = time()
             _, result = run_external_cmd("llm", *args, capture_output=capture_output)
             end = time()
@@ -300,9 +300,9 @@ def handle_llm(text: str, cur: DBCursor) -> tuple[str, str | None, float]:
         end = time()
         context = "" if is_succinct else result
         if is_verbose and prompt_text is not None:
-            click.echo("LLM Prompt:")
-            click.echo(prompt_text)
-            click.echo("---")
+            print("LLM Prompt:")
+            print(prompt_text)
+            print("---")
         return context, sql, end - start
     except Exception as e:
         raise RuntimeError(e)
@@ -332,7 +332,7 @@ def sql_using_llm(
             WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'sqlean_%'
             ORDER BY 1
     """
-    click.echo("Preparing schema information to feed the llm")
+    print("Preparing schema information to feed the llm")
     sample_row_query = "SELECT * FROM {table} LIMIT 1"
     log.debug(schema_query)
     cur.execute(schema_query)
@@ -366,10 +366,10 @@ def sql_using_llm(
         question,
         " ",
     ]
-    click.echo("Invoking llm command with schema information")
+    print("Invoking llm command with schema information")
     str_args = [str(a) for a in args]
     _, result = run_external_cmd("llm", *str_args, capture_output=True)
-    click.echo("Received response from the llm command")
+    print("Received response from the llm command")
     match = re.search(_SQL_CODE_FENCE, result, re.DOTALL)
     sql = match.group(1).strip() if match else ""
 

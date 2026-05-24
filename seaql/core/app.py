@@ -3,7 +3,6 @@ import os
 import sys
 import threading
 
-import click
 from prompt_toolkit.application import get_app
 from prompt_toolkit.completion import DynamicCompleter, ThreadedCompleter
 from prompt_toolkit.cursor_shapes import ModalCursorShapeConfig
@@ -46,7 +45,7 @@ class DbCliApp:
             )
         except Exception as e:
             self.logger.debug('Connection failed: %r', e)
-            click.secho(str(e), err=True, fg='red')
+            print(f"\033[31m{e}\033[0m", file=sys.stderr)
             sys.exit(1)
 
     def run_cli(self) -> None:
@@ -65,7 +64,7 @@ class DbCliApp:
             cursor=ModalCursorShapeConfig(),
         )
 
-        click.echo(f'{self.plugin.name} {self.plugin.version}')
+        print(f'{self.plugin.name} {self.plugin.version}')
 
         try:
             while True:
@@ -77,7 +76,7 @@ class DbCliApp:
                     raise
                 self._execute_and_display(text)
         except EOFError:
-            click.echo('Goodbye!')
+            print('Goodbye!')
 
     def _get_message(self, prompt_format):
         def message():
@@ -131,7 +130,7 @@ class DbCliApp:
             results = self.plugin.execute_query(self.executor, text)
             output = self.plugin.format_output(results, 'psql')
             for line in output:
-                click.echo(line)
+                print(line)
         except Exception as e:
             self.logger.error('sql: %r, error: %r', text, e)
-            click.secho(str(e), err=True, fg='red')
+            print(f"\033[31m{e}\033[0m", file=sys.stderr)

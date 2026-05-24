@@ -6,11 +6,11 @@ import os
 import re
 import shlex
 import subprocess
+import tempfile
 from io import open
 from time import sleep
 from typing import Any, Generator, TextIO
 
-import click
 import sqlparse
 from configobj import ConfigObj
 
@@ -127,10 +127,11 @@ def open_external_editor(filename: str | None = None, sql: str | None = None) ->
     message: str | None = None
     sql = sql or ""
     MARKER = "# Type your query above this line.\n"
+    editor = os.environ.get("EDITOR", "vi")
 
     if filename:
         filename = filename.strip().split(" ", 1)[0]
-        click.edit(filename=filename)
+        subprocess.call([editor, filename])
         try:
             with open(filename, encoding="utf-8") as f:
                 text = f.read()
@@ -139,7 +140,13 @@ def open_external_editor(filename: str | None = None, sql: str | None = None) ->
             text = sql
         return (text, message)
 
-    edited = click.edit(f"{sql}\n\n{MARKER}", extension=".sql")
+    with tempfile.NamedTemporaryFile(mode="w+", suffix=".sql", delete=False) as f:
+        f.write(f"{sql}\n\n{MARKER}")
+        temp_path = f.name
+    subprocess.call([editor, temp_path])
+    with open(temp_path, encoding="utf-8") as f:
+        edited = f.read()
+    os.unlink(temp_path)
     if edited:
         edited = edited.split(MARKER, 1)[0].rstrip("\n")
     else:
@@ -333,8 +340,8 @@ def no_tee(arg: str, **_: Any) -> list[tuple]:
 def write_tee(output: str) -> None:
     global tee_file
     if tee_file:
-        click.echo(output, file=tee_file, nl=False)
-        click.echo("\n", file=tee_file, nl=False)
+        print(output, file=tee_file, end='')
+        print("\n", file=tee_file, end='')
         tee_file.flush()
 
 
@@ -362,8 +369,8 @@ def set_once(arg: str, **_: Any) -> list[tuple]:
 def write_once(output: str) -> None:
     global once_file, written_to_once_file
     if output and once_file:
-        click.echo(output, file=once_file, nl=False)
-        click.echo("\n", file=once_file, nl=False)
+        print(output, file=once_file, end='')
+        print("\n", file=once_file, end='')
         once_file.flush()
         written_to_once_file = True
 
@@ -406,8 +413,8 @@ def write_pipe_once(output: str) -> None:
     global pipe_once_process, written_to_pipe_once_process
     if output and pipe_once_process:
         try:
-            click.echo(output, file=pipe_once_process.stdin, nl=False)
-            click.echo("\n", file=pipe_once_process.stdin, nl=False)
+            print(output, file=pipe_once_process.stdin, end='')
+            print("\n", file=pipe_once_process.stdin, end='')
         except (IOError, OSError) as e:
             pipe_once_process.terminate()
             raise OSError("Failed writing to pipe_once subprocess: {}".format(e.strerror))
@@ -461,16 +468,16 @@ def watch_query(arg: str, **kwargs: Any) -> Generator[tuple, None, None]:
         statement = "{0!s} {1!s}".format(current_arg, arg)
     destructive_prompt = confirm_destructive_query(statement)
     if destructive_prompt is False:
-        click.secho("Wise choice!")
+        print("Wise choice!")
         raise StopIteration
     elif destructive_prompt is True:
-        click.secho("Your call!")
+        print("Your call!")
     cur = kwargs["cur"]
     sql_list = [(sql.rstrip(";"), "> {0!s}".format(sql)) for sql in sqlparse.split(statement)]
     old_pager_enabled = is_pager_enabled()
     while True:
         if clear_screen:
-            click.clear()
+            os.system('clear')
         try:
             set_pager_enabled(False)
             for sql, title in sql_list:
@@ -482,7 +489,7 @@ def watch_query(arg: str, **kwargs: Any) -> Generator[tuple, None, None]:
                     yield (title, None, None, None)
             sleep(seconds)
         except KeyboardInterrupt:
-            click.secho("", nl=True)
+            print()
             raise StopIteration
         finally:
             set_pager_enabled(old_pager_enabled)
