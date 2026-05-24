@@ -329,28 +329,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pgcli"
-version = "4.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "cli-helpers", extra = ["styles"] },
-    { name = "click" },
-    { name = "configobj" },
-    { name = "pgspecial" },
-    { name = "prompt-toolkit" },
-    { name = "psycopg", marker = "sys_platform != 'win32'" },
-    { name = "psycopg-binary", marker = "sys_platform == 'win32'" },
-    { name = "pygments" },
-    { name = "setproctitle", marker = "sys_platform != 'win32' and 'CYGWIN' not in sys_platform" },
-    { name = "sqlparse" },
-    { name = "tzlocal" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ab/9a/c86de44b7a663f0a15cb835d317f22f2ef8438154f6b646ffe32baa3799d/pgcli-4.3.0.tar.gz", hash = "sha256:765ae1550c5508a481f19f16a99716c253fe91afb255797add2d635da20b6aef", size = 147254 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/b4/1229fbe208450998c1e66f5dd2b7e59277602911b5cd2e502dcbffd4c8df/pgcli-4.3.0-py3-none-any.whl", hash = "sha256:1b06710c837407465ad200b636a604b5e1a6ad3e05eabfd8306e13de247765b9", size = 85466 },
-]
-
-[[package]]
 name = "pgspecial"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -609,7 +587,7 @@ wheels = [
 
 [[package]]
 name = "seaql"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "cli-helpers", extra = ["styles"] },
@@ -618,7 +596,6 @@ dependencies = [
     { name = "configobj" },
     { name = "cryptography" },
     { name = "keyring" },
-    { name = "pgcli" },
     { name = "pgspecial" },
     { name = "prompt-toolkit" },
     { name = "psycopg", marker = "sys_platform != 'win32'" },
@@ -649,7 +626,6 @@ requires-dist = [
     { name = "configobj", specifier = ">=5.0.9" },
     { name = "cryptography", specifier = ">=46.0.0" },
     { name = "keyring", specifier = ">=12.2.0" },
-    { name = "pgcli", specifier = ">=4.0.0" },
     { name = "pgspecial", specifier = ">=2.0.0" },
     { name = "prompt-toolkit", specifier = ">=3.0.41,<4.0.0" },
     { name = "psycopg", marker = "sys_platform != 'win32'", specifier = ">=3.0.14" },
