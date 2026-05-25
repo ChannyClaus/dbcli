@@ -93,17 +93,67 @@ def _render_x_axis(chart: str, x_values: list) -> str:
     width = offset + n
 
     all_dates = all(_parse_date(str(v)) is not None for v in x_values)
-    compact = all_dates and max(len(_format_x_value(v, compact=False)) for v in x_values) > 6
-    sample = _format_x_value(x_values[0], compact=compact)
-    label_w = len(sample)
+    multi_day = False
+    if all_dates:
+        dates = [_parse_date(str(v)) for v in x_values]
+        first_date = dates[0].date()
+        multi_day = any(d.date() != first_date for d in dates)
 
+    if all_dates and not multi_day:
+        label_w = 5
+        max_ticks = max(2, (n - 1) // (label_w + 1))
+        step = max(1, (n - 1) // (max_ticks - 1))
+        indices = list(range(0, n, step))
+        if indices[-1] != n - 1:
+            indices.append(n - 1)
+
+        labels = [dates[i].strftime("%H:%M") for i in indices]
+        cols = [offset + i for i in indices]
+
+        tick_row = [" "] * width
+        for c in cols:
+            if c < width:
+                tick_row[c] = "|"
+
+        label_row = _place_labels(width, offset, cols, labels)
+        return chart + "\n" + "".join(tick_row) + "\n" + "".join(label_row)
+
+    if all_dates and multi_day:
+        label_w = 5
+        max_ticks = max(2, (n - 1) // (label_w + 1))
+        step = max(1, (n - 1) // (max_ticks - 1))
+        indices = list(range(0, n, step))
+        if indices[-1] != n - 1:
+            indices.append(n - 1)
+
+        time_labels = [dates[i].strftime("%H:%M") for i in indices]
+        date_labels = []
+        prev_date = None
+        for i in indices:
+            d = dates[i].date()
+            date_labels.append(d.strftime("%m-%d") if d != prev_date else "")
+            prev_date = d
+
+        cols = [offset + i for i in indices]
+
+        tick_row = [" "] * width
+        for c in cols:
+            if c < width:
+                tick_row[c] = "|"
+
+        date_row = _place_labels(width, offset, cols, date_labels)
+        time_row = _place_labels(width, offset, cols, time_labels)
+        return chart + "\n" + "".join(tick_row) + "\n" + "".join(date_row) + "\n" + "".join(time_row)
+
+    sample = str(x_values[0])[:8]
+    label_w = len(sample)
     max_ticks = max(2, (n - 1) // (label_w + 1))
     step = max(1, (n - 1) // (max_ticks - 1))
     indices = list(range(0, n, step))
     if indices[-1] != n - 1:
         indices.append(n - 1)
 
-    labels = [_format_x_value(x_values[i], compact=compact) for i in indices]
+    labels = [(str(x_values[i])[:8]) for i in indices]
     cols = [offset + i for i in indices]
 
     tick_row = [" "] * width
@@ -111,9 +161,16 @@ def _render_x_axis(chart: str, x_values: list) -> str:
         if c < width:
             tick_row[c] = "|"
 
-    label_row = [" "] * width
+    label_row = _place_labels(width, offset, cols, labels)
+    return chart + "\n" + "".join(tick_row) + "\n" + "".join(label_row)
+
+
+def _place_labels(width: int, offset: int, cols: list[int], labels: list[str]) -> str:
+    row = [" "] * width
     prev_end = -1
     for c, label in zip(cols, labels):
+        if not label:
+            continue
         pos = c - len(label) // 2
         pos = max(offset, pos)
         if pos + len(label) > width:
@@ -123,10 +180,9 @@ def _render_x_axis(chart: str, x_values: list) -> str:
         if pos + len(label) <= width:
             for j, ch in enumerate(label):
                 if pos + j < width:
-                    label_row[pos + j] = ch
+                    row[pos + j] = ch
             prev_end = pos + len(label) - 1
-
-    return chart + "\n" + "".join(tick_row) + "\n" + "".join(label_row)
+    return "".join(row)
 
 
 def plot_timeseries(arg: str = "") -> list[tuple]:
